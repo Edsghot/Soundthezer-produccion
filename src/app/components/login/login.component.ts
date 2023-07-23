@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'src/app/interfaces/User';
 import { LoginService } from 'src/app/services/login.service';
 
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -59,29 +60,30 @@ export class LoginComponent {
       }
     );
   }
-  accesUserGoogle() {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'http://localhost:4200', // Reemplaza con el origen correcto de tu aplicación frontend
-      }),
-    };
 
-    this.http
-      .get<any>('/api/users/auth/google', httpOptions)
-      .subscribe(
-        (data) => {
-          const name = data.name;
-          const email = data.email;
-          console.log('GOOGLE');
-          console.log('Nombre:', name);
-          console.log('Email:', email);
-        },
-        (error) => {
-          console.error('Error:', error);
-        }
-      );
-  }
+
+  accesUserGoogle() {
+    const callbackUrl = 'http://localhost:3030/api/users/auth/google/callback';
+
+  this.http.get<any>(callbackUrl, {}).subscribe(
+    (data) => {
+      if (data.success) {
+        // Usuario autenticado correctamente, accede a los datos del usuario
+        const user = data.user;
+        console.log('GOOGLE');
+        console.log('Nombre:', user.name);
+        console.log('Email:', user.email);
+      } else {
+        // Error de autenticación, muestra el mensaje de error
+        console.error('Error de autenticación:', data.message);
+      }
+    },
+    (error) => {
+      console.error('Error al realizar la solicitud:', error);
+    }
+  );
+}
+  
   accesUserFacebook() {
     this.http.get<any>('/api/users/auth/facebook').subscribe(
       (data) => {
